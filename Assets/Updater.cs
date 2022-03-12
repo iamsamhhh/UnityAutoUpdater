@@ -9,7 +9,7 @@ using System;
 
 public class Updater : MonoBehaviour
 {
-    public const string version = "a.0.0.1";
+    public const string version = "a.0.0.2";
     Response root;
     [SerializeField]
     TMP_Text text;
