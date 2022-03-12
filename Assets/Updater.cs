@@ -1,46 +1,39 @@
-using System.Collections;
+using System;
 using System.Collections.Generic;
 using System.Net;
 using System.IO;
 using UnityEngine;
-#if UNITY_EDITOR
-using UnityEditor;
-#endif
+using Newtonsoft.Json;
+
+
+
 
 public class Updater : MonoBehaviour
 {
     public const string version = "a.0.0.1";
-
-    
+    Response root;
     void Awake()
     {
-        if (CheckForUpdate()){
-            // client.DownloadFile("https://github.com/iamsamhhh/UnityAutoUpdater/releases/download/" )
+        GetWebResponse();
+        if (root.Name != version)
+        {
+            WebClient client = new WebClient();
+            client.DownloadFile("https://github.com/iamsamhhh/UnityAutoUpdater/releases/download/" + root.Name + "/AutoUpdater_Mac_v1.app.zip", "AutoUpdater_Mac_v1.app.zip");
         }
+       
     }
 
-    bool CheckForUpdate(){
-        HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://api.github.com/repos/iamsamhhh/UnityAutoUpdater/releases");
-        request.UserAgent = "something";
+    void GetWebResponse()
+    {
+        HttpWebRequest request = (HttpWebRequest)WebRequest.Create("https://api.github.com/repos/iamsamhhh/UnityAutoUpdater/releases/latest");
+        request.UserAgent = "whyyyyyyyyy"; // Don't know why but it only works when this line exist
         HttpWebResponse response = (HttpWebResponse)request.GetResponse();
         string htmlString;
         using (var reader = new StreamReader(response.GetResponseStream()))
         {
             htmlString = reader.ReadToEnd();
         }
-        Debug.Log(htmlString);
-        if (htmlString.Contains(version))
-        return true;
-        else
-        return false;
+        root = JsonConvert.DeserializeObject<Response>(htmlString);
     }
 
-#if UNITY_EDITOR
-    [MenuItem("AutoUpdater/Export configuration %e", false, 1)]
-    private static void ExportConfiguration(){
-        SaveMgr.instance.Save(version, "version");
-    }
-#endif 
-
-    
 }
